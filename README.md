@@ -1,92 +1,53 @@
-# Understanding Person Identification through Gait PoPETs 2023
+
+This repository hold generated samples of each perturbation techniques used in the paper "Understanding Person Identificatin through Gait". Clear.gif gives the original sequence before the perturbation. We used the videos as stimuli in our user study to study how natural the results are perceived by the users.
 
 
+## Overview of the perturbation techniques
 
-## Getting started
+|                | Marcro                              | Micro                                           | Static                        | Dynamic                |
+|----------------|-------------------------------------|-------------------------------------------------|-------------------------------|------------------------|
+| definition     | Step length, walking speed, cadence | asymmetry and variability in the macro features | Shape and general body layout | Time course of changes |
+| Perturbation 1 | Remove variations                   | Remove trajectories                             | Static pose                   | Motion Extraction      |
+| Perturbation 2 |                                     | Amplitude/frequency equalization                | Resampling                    | Normalization          |
+| Perturbation 3 | Coarsening macro                    | Coarsening micro                                |                               |                        |
+| Perturbation 4 | Remove body parts                   | Keep body parts                                 |                               |                        |
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Description of the perturbation techniques
 
-## Add your files
+# Macro Features
+The macro features keep the overall characteristics of the walker and remove its smaller variations from the data. We used three perturbation techniques for this: remove variations, coarsening macro, and remove body parts.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+**Remove variations**: In order to extract the ideal trajectory from the gait data we removed the small variations that deviate from the ideal trajectory. The ideal trajectory is here calculated by two different methods: either using a moving window on the marker poses and then calculating a rolling average, or an interpolation. The difference between the two is that the rolling average takes all poses in the window to calculate an average, while the interpolation only uses the poses at the edge of the moving window. 
+The moving window size is given as the distance to the pose which is calculated and is either one or three additional poses before and after e.g., spanning three poses in total or spanning seven poses in total, respectively. This strategy follows a similar idea to low-pass filtering, as it retains the main movement but removes detailed deviations.
 
-```
-cd existing_repo
-git remote add origin https://git.scc.kit.edu/ps-chair/understanding-person-identification-through-gait-popets-2023.git
-git branch -M main
-git push -uf origin main
-```
+**Coarsening macro**: As we were interested in the most significant information of the walker position, we removed the least significant part of each marker position in a pose for all poses. The effect is that the grid on which the walker moves is becoming more coarse. We removed all digits either below the thousandth (1000) or the hundredth digit (100).
 
-## Integrate with your tools
+**Remove body parts**: We measured how much an individual body part (head, torso, hip, arms, legs) contributes to the overall recognition performance. This was done by removing the body part from the data by setting its marker positions to zero.
 
-- [ ] [Set up project integrations](https://git.scc.kit.edu/ps-chair/understanding-person-identification-through-gait-popets-2023/-/settings/integrations)
+# Micro Features
+The micro features are the counterparts to the macro features. Here we kept the small variations of the gait cycle and the least significant parts of the marker positions.
 
-## Collaborate with your team
+**Remove trajectories**: Contrasting remove variations, we removed the ideal marker trajectories from the data by calculating the ideal trajectory as described in remove variation via either rolling average or interpolation with a window size of 1 or 3. The ideal trajectory was then subtracted from the real trajectory, which leaves us with the distances of the ideal marker positions to the real ones. 
+This strategy resembles high-pass filtering, as it removes the main movement and only retains the minor specifics of the current sample.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+**Coarsening micro**: We eliminated the most significant part of the walker positions by removing the most significant parts of each marker position value. We removed all digits above the hundredth (100), tenth (10), or first digit (1) position
 
-## Test and Deploy
+**Keep body part**: We measured how much recognition performance the individual body parts have alone without the rest of the body. All remaining other body parts are set to zero.
 
-Use the built-in continuous integration in GitLab.
+**Amplitude/Frequency equalization**: The walking amplitude and frequency were equalized between all individuals to perturb their influence on the recognition. Informed by previous studies, we calculated a gait representation of each individual by using the average pose, the first four components of a principal component analysis (PCA), and a sinus function fit on these components to represent the gait cycle of a person. We then equalized the frequency or amplitude of the fitted sinus function by means of the group-level average.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+# Static Features
+The static features capture the time-invariant features of the walker by removing the dynamic part of the gait motion. We therefore kept the proportions of the walker.
 
-***
+**Static pose**: We used only an average pose or the first pose of each sample, thus removing the dynamic component of the gait data.
 
-# Editing this README
+**Resampling**: We downsampled the data to 10 frames, and therefore removed most of the dynamic content from the data.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+# Dynamic Features
+The dynamic features are the counterpart to the static features and aim to only retain the dynamic part of the motion.
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+**Motion extraction**: Instead of using the individual poses, we used their difference (i.e., keeping only the variations between poses) and hence removed the static features.
 
-## Name
-Choose a self-explaining name for your project.
+**Normalization**: We normalized the static features in a sequence by either normalizing the height axis (y-axis), all axes or normalizing each dimension over the entire sequence of poses.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
