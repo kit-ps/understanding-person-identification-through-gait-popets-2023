@@ -1,5 +1,7 @@
 
-This repository hold generated samples of each perturbation techniques used in the paper "Understanding Person Identificatin through Gait". Clear.gif gives the original sequence before the perturbation. We used the videos as stimuli in our user study to study how natural the results are perceived by the users.
+This repository hold generated samples of each perturbation techniques used in the paper "Understanding Person Identificatin through Gait" accepted at PoPETs 2023. Clear.gif gives the original sequence before the perturbation. We used the videos as stimuli in our user study to study how natural the results are perceived by the users. Following we give an overview of the perturbation techniques.
+
+![original gait sequence](clear.gif)
 
 
 ## Overview of the perturbation techniques
